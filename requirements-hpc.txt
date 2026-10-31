@@ -1,0 +1,17 @@
+# Installed by hpc/setup_hpc.example.sh before its CUDA-specific PyTorch installation.
+numpy
+pandas
+scipy
+scikit-learn
+PyYAML
+nibabel
+SimpleITK
+antspyx
+PyWavelets
+scikit-image
+matplotlib
+Pillow
+tifffile
+joblib
+tabulate
+tqdm

@@ -1,0 +1,122 @@
+# Python bytecode, caches, environments, and build/test artifacts
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+build/
+dist/
+*.egg-info/
+.venv/
+venv/
+env/
+.conda/
+
+# IDE, OS, and editor temporary files
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+Desktop.ini
+*.swp
+*.swo
+*~
+
+# Secrets and credentials
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+credentials*.json
+service-account*.json
+secrets*.yaml
+secrets*.yml
+.aws/
+.config/gcloud/
+
+# Restricted neuroimaging data and participant-level metadata
+/data/*
+!/data/.gitkeep
+!/data/README.md
+*.nii
+*.nii.gz
+*.dcm
+*.dicom
+*.bidsignore
+participants.tsv
+sessions.tsv
+scans.tsv
+*_manifest.xlsx
+*_download_manifest.xlsx
+/UNICAL_ADNI3_external_validation_download_manifest.xlsx
+
+# Derived participant/case-level arrays and predictions
+/features/
+/outputs/
+/predictions/
+/checkpoints/
+/models/checkpoints/
+*.npy
+*.npz
+*.pt
+*.pth
+*.ckpt
+*.safetensors
+*.h5
+*.hdf5
+
+# Private validation records and review-stage generated artifacts
+/review/*
+!/review/analysis/
+!/review/analysis/*.py
+
+# Machine-specific configurations; public-safe examples remain versioned
+/configs/*.yaml
+/configs/*.yml
+!/configs/*.example.yaml
+!/configs/*.example.yml
+!/configs/README.md
+
+# Local experiment evidence, archives, and internal drafting material
+/archive/
+/results_archive/
+/UNICAL_Complete_Results_JIIM_Final.txt
+/UNICAL_Paper_2026_07_24.html
+/codex_multiseed_slurm_prompt.md
+
+# Legacy or unresolved entrypoints retained locally pending scientific review
+/scripts/39_archive_old_generated_data.py
+/scripts/45_run_mri_ad_cn_ablation.py
+/scripts/46_generate_mri_ad_cn_report.py
+/scripts/52_train_unical_cmt_branches.py
+/scripts/53_train_unical_cmt_fusion.py
+/scripts/54_run_unical_cmt_3mt_ablation.py
+/scripts/55_generate_unical_cmt_3mt_report.py
+
+# Site-specific HPC helpers/submissions are retained locally; portable examples are tracked
+/hpc/*.slurm
+/hpc/*.sh
+!/hpc/README.md
+!/hpc/*.example.sh
+
+# Logs, scheduler output, batch products, and temporary visualizations
+/logs/
+/tmp/
+/temp/
+/scratch/
+*.log
+*.out
+*.err
+slurm-*.out
+core.*
+
+# Local render and report intermediates
+/_build/
+/_reports/
+/_rendered/

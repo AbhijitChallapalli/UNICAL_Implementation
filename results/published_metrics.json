@@ -1,0 +1,57 @@
+{
+  "publication": {
+    "title": "UNICAL: Uncertainty-Aware Multimodal Learning with MRI-Derived Synthetic Amyloid PET for Alzheimer's Disease Classification",
+    "journal": "Journal of Imaging Informatics in Medicine",
+    "year": 2026,
+    "doi": "10.1007/s10278-026-02442-9"
+  },
+  "oasis3_classification": {
+    "sessions": 813,
+    "unique_participants": 811,
+    "cn_sessions": 523,
+    "ad_spectrum_sessions": 290,
+    "auroc": 0.868,
+    "seed_sd": 0.009,
+    "balanced_accuracy": 0.814,
+    "auprc": 0.842,
+    "sensitivity": 0.810,
+    "specificity": 0.818,
+    "ece": 0.061
+  },
+  "adni3_external_evaluation": {
+    "participants": 261,
+    "ad_participants": 87,
+    "cn_participants": 174,
+    "auroc": 0.836,
+    "auroc_95_ci": [0.791, 0.876],
+    "auprc": 0.802,
+    "balanced_accuracy": 0.783,
+    "sensitivity": 0.782,
+    "specificity": 0.784,
+    "ece": 0.089
+  },
+  "paired_pet_validation": {
+    "examinations": 228,
+    "mae_mean": 0.089,
+    "mae_sd": 0.018,
+    "rmse_mean": 0.112,
+    "rmse_sd": 0.022,
+    "psnr_db_mean": 29.3,
+    "psnr_db_sd": 2.1,
+    "voxelwise_pearson_r_mean": 0.864,
+    "voxelwise_pearson_r_sd": 0.041,
+    "slice_averaged_ssim_mean": 0.841,
+    "slice_averaged_ssim_sd": 0.035,
+    "cortical_composite_suvr_pearson_r": 0.954,
+    "amyloid_status_concordance": 0.899
+  },
+  "ablation_auroc": {
+    "full_unical": 0.868,
+    "without_uncertainty_gate": 0.854,
+    "uniform_modality_weights": 0.847,
+    "without_modality_dropout": 0.843,
+    "without_residual_correction": 0.838,
+    "probability_averaging": 0.826,
+    "concatenation_mlp": 0.807
+  }
+}

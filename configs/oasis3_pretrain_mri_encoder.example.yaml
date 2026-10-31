@@ -1,0 +1,122 @@
+# Public-safe self-supervised MRI pretraining template.
+
+project:
+  name: mri_encoder_pretrain
+  seed: 42
+
+paths:
+  project_root: .
+  pretrain_mri_root: data/source/oasis3_pretrain/MR_T1w
+  pretrain_csv: data/private/oasis3_pretraining_sessions.csv
+  paper_label_csv: data/private/oasis3_classification_labels.csv
+  paper_pipeline_config: configs/oasis3_unical_local.yaml
+  pretrain_manifest_csv: data/processed/pretrain_mri_manifest.csv
+  pretrain_cache_dir: data/cache/pretrain_mri
+  pretrain_checkpoint_dir: outputs/pretrain_mri_encoder/checkpoints
+  pretrain_log_dir: outputs/pretrain_mri_encoder/logs
+  mni_template: data/templates/MNI152_T1_1mm_brain.nii.gz
+
+data_integrity:
+  selection_unit: session
+  allowlist_session_column: experiment_id
+  one_t1w_per_session: true
+  retain_longitudinal_sessions: true
+  fail_on_paper_subject_overlap: true
+  require_all_sessions_preprocessed: true
+
+preprocessing_3mt_style:
+  enabled: true
+  target_shape: [144, 176, 144]
+  debug_target_shape: [96, 96, 96]
+  use_debug_shape: false
+  overwrite: false
+  orientation: canonical
+  crop_background: true
+  crop_margin_voxels: 8
+  skull_strip:
+    enabled: true
+    method_priority: [synthstrip, ants_brain_extraction, simple_threshold_fallback]
+    fail_if_unavailable: false
+  bias_correction:
+    enabled: true
+    allow_native_backend: false
+    method_priority: [ants_n4, simpleitk_n4, skip]
+    fail_if_unavailable: false
+  registration:
+    enabled: true
+    allow_native_backend: false
+    mode_priority: [ants_affine, simpleitk_affine, skip]
+    template_path: data/templates/MNI152_T1_1mm_brain.nii.gz
+    fail_if_template_missing: false
+    strict_3mt_mode: false
+  normalization:
+    clip_percentiles: [1, 99]
+    method: robust_zscore_foreground
+    foreground_mask_required: true
+
+ssl:
+  method: masked_autoencoder
+  mask_ratio: 0.60
+  mask_block_size: [2, 2, 2]
+  decoder_dim: 256
+  decoder_depth: 2
+  decoder_heads: 4
+  decoder_ff_dim: 1024
+  reconstruction_loss: mse
+  norm_target: true
+  epochs: 300
+  warmup_epochs: 20
+  base_lr: 1.5e-4
+  min_lr: 1.0e-6
+  weight_decay: 0.05
+  batch_size: 8
+  accumulation_steps: 1
+  validation_fraction: 0.10
+  num_workers: 12
+  pin_memory: true
+  persistent_workers: true
+  mixed_precision: true
+  amp_dtype: bfloat16
+  matmul_precision: high
+  channels_last_3d: true
+  gradient_clip_norm: 1.0
+  save_every_epochs: 25
+  keep_last_k: 3
+  augmentation:
+    random_crop_size: [128, 160, 128]
+    random_crop_prob: 0.8
+    flip_prob: 0.5
+    flip_axes: [0]
+    intensity_shift_std: 0.1
+    intensity_scale_range: [0.9, 1.1]
+    gaussian_noise_std: 0.02
+    gaussian_blur_prob: 0.2
+    gaussian_blur_sigma_range: [0.5, 1.0]
+    elastic_deform_prob: 0.0
+    elastic_deform_sigma: 5.0
+    elastic_deform_alpha: 50.0
+    cutout_prob: 0.0
+
+encoder:
+  input_channels: 1
+  stem_channels: 16
+  block_channels: [32, 64, 128, 256]
+  downsample_stride: 2
+  dropout3d: 0.0
+  d_model: 512
+  transformer_layers: 2
+  transformer_heads: 8
+  transformer_ff_dim: 1024
+  transformer_dropout: 0.0
+  output_dim: 512
+
+validation:
+  linear_probe: true
+  probe_dataset: paper_cohort
+  probe_label_csv: data/private/oasis3_classification_labels.csv
+  probe_manifest_csv: data/processed/unical_mri_preprocessed.csv
+  probe_epochs: 50
+  probe_lr: 1.0e-3
+  probe_batch_size: 16
+  probe_folds: 5
+  probe_seed: 42

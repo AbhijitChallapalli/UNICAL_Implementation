@@ -1,0 +1,16 @@
+# Dependency inventory derived from imports in the public release candidate.
+# Except where shown, versions were not recoverable from a complete lock file.
+numpy
+pandas
+scipy
+scikit-learn
+PyYAML
+nibabel
+SimpleITK
+antspyx
+PyWavelets
+scikit-image
+matplotlib
+Pillow
+tifffile
+torch==2.7.1

@@ -1,0 +1,21 @@
+* text=auto
+
+.gitattributes text eol=lf
+.gitignore text eol=lf
+.gitkeep text eol=lf
+LICENSE text eol=lf
+*.sh text eol=lf
+*.slurm text eol=lf
+*.py text eol=lf
+*.txt text eol=lf
+*.yaml text eol=lf
+*.yml text eol=lf
+*.md text eol=lf
+*.cff text eol=lf
+*.bib text eol=lf
+*.json text eol=lf
+
+*.png binary
+*.tif binary
+*.tiff binary
+*.xlsx binary

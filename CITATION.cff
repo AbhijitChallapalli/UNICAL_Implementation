@@ -1,0 +1,29 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite the published UNICAL paper."
+type: software
+license: MIT
+title: "UNICAL: Uncertainty-Aware Multimodal Learning with MRI-Derived Synthetic Amyloid PET for Alzheimer's Disease Classification"
+authors:
+  - family-names: Challapalli
+    given-names: Srinivasa Sai Abhijit
+  - family-names: Bhattarai
+    given-names: Krishna Mani
+  - family-names: Kamangar
+    given-names: Farhad A.
+year: 2026
+doi: 10.1007/s10278-026-02442-9
+url: "https://doi.org/10.1007/s10278-026-02442-9"
+preferred-citation:
+  type: article-journal
+  title: "UNICAL: Uncertainty-Aware Multimodal Learning with MRI-Derived Synthetic Amyloid PET for Alzheimer's Disease Classification"
+  authors:
+    - family-names: Challapalli
+      given-names: Srinivasa Sai Abhijit
+    - family-names: Bhattarai
+      given-names: Krishna Mani
+    - family-names: Kamangar
+      given-names: Farhad A.
+  journal: Journal of Imaging Informatics in Medicine
+  year: 2026
+  doi: 10.1007/s10278-026-02442-9
+  url: "https://doi.org/10.1007/s10278-026-02442-9"

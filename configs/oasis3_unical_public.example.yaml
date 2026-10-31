@@ -1,0 +1,216 @@
+# Public-safe configuration template for the published UNICAL pipeline.
+# Restricted data, manifests, derived arrays, and checkpoints are not included.
+
+project:
+  name: unical_public_reproduction
+  seed: 112255
+  task: AD_spectrum_vs_CN
+
+paths:
+  project_root: .
+  mri_root: data/source/oasis3/MR_T1w
+  label_csv: data/private/oasis3_classification_labels.csv
+  mri_ad_cn_manifest_csv: data/processed/oasis3_classification_manifest.csv
+  mri_ad_cn_qc_csv: data/processed/oasis3_classification_qc.csv
+  mri_ad_cn_preprocessed_96_csv: data/processed/oasis3_mri_preprocessed_96.csv
+  cmt_manifest_csv: data/processed/unical_manifest.csv
+  cmt_qc_csv: data/processed/unical_qc.csv
+  cmt_preprocessed_manifest_csv: data/processed/unical_mri_preprocessed.csv
+  cmt_cache_dir: data/cache/unical_mri
+  mri_summary_npz: features/mri_summary_features.npz
+  cowsrad_v1_npz: features/cowsrad_v1_features.npz
+  cowsrad_v2_npz: features/cowsrad_v2_features.npz
+  cowsrad_selected_npz: features/cowsrad_selected_features.npz
+  synthetic_pet_k_manifest: data/processed/synthetic_pet_k_manifest.csv
+  synthetic_pet_k_output_dir: outputs/synthetic_pet_k
+  gated_pet_manifest_csv: data/processed/gated_pet_manifest.csv
+  pet_summary_features_npz: features/pet_uncertainty_summary_features.npz
+  feature_dir: features/unical
+  split_dir: data/splits/unical
+  output_root: outputs/unical
+
+labels:
+  negative_label: CN
+  positive_label: AD
+  label_column: label
+  group_column: subject_id
+  expected_counts: {CN: 523, AD: 290}
+  fail_if_count_mismatch: true
+  allow_longitudinal_transitions: true
+
+preprocessing_3mt_style:
+  enabled: true
+  target_shape: [144, 176, 144]
+  debug_target_shape: [96, 96, 96]
+  use_debug_shape: false
+  overwrite: false
+  orientation: canonical
+  crop_background: true
+  crop_margin_voxels: 8
+  skull_strip:
+    enabled: true
+    method_priority: [synthstrip, ants_brain_extraction, simple_threshold_fallback]
+    fail_if_unavailable: false
+  bias_correction:
+    enabled: true
+    allow_native_backend: false
+    method_priority: [ants_n4, simpleitk_n4, skip]
+    fail_if_unavailable: false
+  registration:
+    enabled: true
+    allow_native_backend: false
+    mode_priority: [ants_affine, simpleitk_affine, skip]
+    template_path: data/templates/MNI152_T1_1mm_brain.nii.gz
+    fail_if_template_missing: false
+    strict_3mt_mode: false
+  normalization:
+    clip_percentiles: [1, 99]
+    method: robust_zscore_foreground
+    foreground_mask_required: true
+  save_qc_examples: true
+  qc_examples_per_class: 12
+
+cowsrad_selected:
+  enabled: true
+  include_mri_summary: true
+  include_cowsrad_v1: true
+  include_cowsrad_v2_topk: true
+  cowsrad_v2_topk: 50
+  selector_method: anova_f
+  fit_selector_inside_fold_only: true
+
+synthetic_pet:
+  enabled: true
+  required_k: 4
+  fail_if_missing: true
+  k_manifest_csv: data/processed/synthetic_pet_k_manifest.csv
+  k_output_dir: outputs/synthetic_pet_k
+  uncertainty_gate:
+    alpha: 0.8
+    normalize_uncertainty: true
+    eps: 1.0e-8
+  outputs:
+    gated_pet_dir: data/cache/unical_pet/gated_pet
+    mean_pet_dir: data/cache/unical_pet/mean_pet
+    uncertainty_dir: data/cache/unical_pet/uncertainty
+
+model:
+  d_model: 512
+  num_classes: 2
+  mri_cnn_transformer:
+    input_channels: 1
+    stem_channels: 16
+    block_channels: [32, 64, 128, 256]
+    conv_kernel_size: 3
+    downsample_stride: 2
+    use_residual_blocks: true
+    norm: groupnorm
+    activation: gelu
+    dropout3d: 0.1
+    patch_projection_dim: 512
+    transformer_layers: 2
+    transformer_heads: 8
+    transformer_ff_dim: 1024
+    transformer_dropout: 0.1
+    positional_embedding: learned_3d
+    output_dim: 512
+  cowsrad_encoder:
+    hidden_dims: [512, 512]
+    dropout: 0.2
+    output_dim: 512
+  pet_image_encoder:
+    enabled: true
+    input_channels: 1
+    stem_channels: 16
+    block_channels: [32, 64, 128]
+    use_transformer: false
+    output_dim: 512
+    dropout3d: 0.1
+  pet_summary_encoder:
+    enabled: true
+    hidden_dims: [256, 512]
+    dropout: 0.2
+    output_dim: 512
+
+pet_anchored_fusion:
+  embedding_batch_size: 4
+  d_model: 128
+  heads: 4
+  ff_dim: 256
+  layers: 1
+  dropout: 0.15
+  modality_dropout: [0.10, 0.10, 0.05]
+  pet_uncertainty_indices: [10, 11, 12, 13, 14, 15, 16, 17]
+  concat_hidden_dim: 128
+  batch_size: 64
+  epochs: 100
+  patience: 12
+  learning_rate: 1.0e-4
+  weight_decay: 1.0e-4
+  auxiliary_weight: 0.10
+  residual_penalty: 0.01
+  probability_anchor_d_model: 64
+  probability_anchor_heads: 4
+  probability_anchor_ff_dim: 128
+  probability_anchor_layers: 1
+  probability_anchor_dropout: 0.15
+  probability_anchor_modality_dropout: [0.10, 0.10, 0.05]
+  probability_anchor_max_residual_scale: 0.50
+  probability_anchor_weight_penalty: 0.10
+
+training:
+  device: cuda_if_available
+  mixed_precision: true
+  amp_dtype: bfloat16
+  matmul_precision: high
+  batch_size: 8
+  feature_batch_size: 128
+  num_workers: 12
+  pin_memory: true
+  persistent_workers: true
+  gradient_clip_norm: 1.0
+
+splits:
+  strategy: repeated_stratified_group_kfold
+  n_splits: 5
+  n_repeats: 1
+  seeds:
+    - 112255
+    - 791758
+    - 964066
+    - 227975
+    - 705568
+    - 608782
+    - 832035
+    - 45973
+    - 375721
+    - 175103
+    - 398769
+    - 975527
+    - 601363
+    - 614909
+    - 191807
+    - 16863
+    - 185009
+    - 478476
+    - 907486
+    - 546635
+  group_column: subject_id
+  label_column: label
+
+evaluation:
+  metrics: [balanced_accuracy, accuracy, auroc, auprc, sensitivity, specificity, ece, brier]
+  threshold_strategy: validation_youden
+  ece_bins: 15
+  bootstrap_replicates: 2000
+  save_predictions: true
+  save_figures: true
+
+pretrain:
+  required: true
+  mri_encoder_checkpoint: outputs/pretrain_mri_encoder/checkpoints/mri_encoder_pretrained_best.pt
+
+runtime:
+  skip_pet_if_missing: false
+  fail_fast: true
+  save_checkpoints: true
